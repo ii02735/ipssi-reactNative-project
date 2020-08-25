@@ -1,10 +1,18 @@
 import React from "react";
-import { ReactElement } from "react";
 import { Text, View, StyleSheet } from "react-native";
 
-export function Title(props:any):JSX.Element
-{
-    return <Text style={stylesTitle[props.tag]}>{props.children}</Text>
+/**
+ * Multiples composants utilitaires stateless
+ * pour pouvoir composer des renders comme à la HTML
+ */
+
+export const Title = (props:any):JSX.Element =>{
+    let style = {...stylesTitle[props.tag]};
+    /**
+     * Si on passe des styles supplémentaires, on les merge avec ceux existants
+     */
+    Object.assign(style,props.style);
+    return <Text style={style}>{props.children}</Text>
 }
 
 export const Br = ():JSX.Element => <View style={{marginVertical: 10}}></View>
