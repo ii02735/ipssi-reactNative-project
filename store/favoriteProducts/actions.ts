@@ -13,7 +13,7 @@ import Moment from "moment";
             type: ADD_ERROR,
             payload: "Le produit a déjà été ajouté aux favoris"
         }
-    newProduct.dateFavoris = Moment(new Date).format("DD/MM/YYYY");
+    newProduct.dateFavori = Moment(new Date).format("DD/MM/YYYY");
     return {
         type: ADD_PRODUCT,
         payload: newProduct
