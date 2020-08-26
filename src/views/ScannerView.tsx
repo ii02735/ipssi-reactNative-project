@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View as Div, Dimensions } from 'react-native';
 import { Title } from "../components/utils/HtmlTags";
 import { BarCodeScanner } from 'expo-barcode-scanner';
-import { TouchableHighlight } from 'react-native-gesture-handler';
 
 const ScannerView = ({navigation}:any):JSX.Element => {
 
@@ -23,7 +22,7 @@ const ScannerView = ({navigation}:any):JSX.Element => {
     //on déclenche la fonction lorsque le code-barres est analysé
     //Le type et les données du code-barres y sont injectées par BarCodeScanner
     const scannedBarCodeHandler = ({type,data}:any) => {
-        navigation.navigate("Résultats",{type,data})
+        navigation.navigate("Données produits",{type,data, scanner: true })
     }
 
     return (
