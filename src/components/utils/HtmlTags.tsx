@@ -21,19 +21,19 @@ export const Hr = ({margin}:{margin: string}):JSX.Element => <View style={{borde
 
 const stylesTitle: any = StyleSheet.create({
     h1: {
-        fontSize: 40,
+        fontSize: 35,
         fontWeight: "bold"
     },
     h2: {
-        fontSize: 30,
+        fontSize: 28,
         fontWeight: "bold"
     },
     h3: {
-        fontSize: 20,
+        fontSize: 24,
         fontWeight: "bold"
     },
     h4: {
-        fontSize: 15,
+        fontSize: 20,
         fontWeight: "bold"
     }
 });
