@@ -1,18 +1,19 @@
 import { FavProductActionTypes, FavProductState, ADD_PRODUCT, REMOVE_PRODUCT } from "./types";
 import Product from "../../src/Model/Product";
 import { errorsActionTypes, ADD_ERROR } from "../errors/types";
-
+import Moment from "moment";
 /**
  * Écriture de logique avant de retourner un objet qui sera traité par le reducer
  */
 
  export function addNewProduct(stateProducts:FavProductState,newProduct:Product):FavProductActionTypes|errorsActionTypes
  {
-     if(stateProducts.find((product:Product) => product.favoriteId === newProduct.favoriteId))
+     if(stateProducts.find((product:Product) => product.barcode === newProduct.barcode))
         return {
             type: ADD_ERROR,
             payload: "Le produit a déjà été ajouté aux favoris"
         }
+    newProduct.dateFavoris = Moment(new Date).format("DD/MM/YYYY");
     return {
         type: ADD_PRODUCT,
         payload: newProduct
@@ -21,12 +22,12 @@ import { errorsActionTypes, ADD_ERROR } from "../errors/types";
 
  export function removeProduct(stateProduct:FavProductState,productToBeRemoved:Product):FavProductActionTypes|errorsActionTypes
  {
-       if(productToBeRemoved.favoriteId && stateProduct.find((product:Product) => product.favoriteId === productToBeRemoved.favoriteId))
+       if(productToBeRemoved.barcode && stateProduct.find((product:Product) => product.barcode === productToBeRemoved.barcode))
             return {
                 type: REMOVE_PRODUCT,
-                payload: productToBeRemoved.favoriteId
+                payload: productToBeRemoved.barcode
             }
-            
+
         return {
             type: ADD_ERROR,
             payload: "Le produit n'existe pas dans les favoris"

@@ -15,7 +15,7 @@ interface addProductAction {
 
 interface removeProductAction {
     type: typeof REMOVE_PRODUCT,
-    payload: number //on utilisera l'id du produit sauvegardé
+    payload: string //on utilisera l'id du produit sauvegardé
 }
 
 interface clearFavoriteAction  {
