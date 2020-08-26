@@ -6,12 +6,19 @@ import { TouchableHighlight } from 'react-native-gesture-handler';
 
 const ScannerView = ({navigation}:any):JSX.Element => {
 
+    const [permission,setPermission]  = useState<boolean>();
+
     useEffect(() => {
         (async () => {
             const { status } = await BarCodeScanner.requestPermissionsAsync();
-            console.log(status)
+            setPermission(status === 'granted');
         })()
     },[])
+
+    if(permission === null)
+        return <Div><Title tag="h4">Demande de permissions pour utilisation de la caméra...</Title></Div>
+    if(permission === false)
+        return <Div><Title tag="h4" style={{ color: "crimson" }}>Échec de l'accès à la caméra</Title></Div>
     
     //on déclenche la fonction lorsque le code-barres est analysé
     //Le type et les données du code-barres y sont injectées par BarCodeScanner
