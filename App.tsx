@@ -11,6 +11,7 @@ import favoriteProductsReducer from "./store/favoriteProducts/reducers";
 import errorsReducer from "./store/errors/reducers";
 import { createStore, combineReducers } from "redux";
 import { Provider } from "react-redux";
+import FavoriteView from "./src/views/FavoriteView";
 
 const store = createStore(combineReducers({
   favoriteProducts: favoriteProductsReducer,
@@ -29,8 +30,9 @@ const App = ():JSX.Element => {
        <Stack.Navigator>
           <Stack.Screen name="Accueil" component={HomeView} />
           <Stack.Screen name="Scanner" component={ScannerView}/>
-          <Stack.Screen name="Résultats" component={ResultsView} />
+          <Stack.Screen name="Données produits"  component={ResultsView} />
           <Stack.Screen name="Ingrédients" component={IngredientsView} />
+          <Stack.Screen name="Produits favoris" component={FavoriteView} />
        </Stack.Navigator>
      </NavigationContainer>
      </Provider>

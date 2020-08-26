@@ -30,12 +30,14 @@ const HomeView = ({navigation}:any):JSX.Element => {
              **/}
             <TouchableHighlight onPress={() => navigation.navigate("Scanner")} /*onPress={changeStyle.bind("white")} onPressOut={changeStyle.bind("black")}*/ style={styles.circle} underlayColor="#5285e3">
                 <Div>
-                    <Title tag="h4" style={{color: textColor}}>Scanner code-barres</Title>
+                    <Title tag="h4" style={{color: textColor}}>Scanner</Title>
                 </Div>
             </TouchableHighlight>
-            <Div style={styles.circle}>
-                <Title tag="h4">Favoris</Title>
-            </Div>
+            <TouchableHighlight onPress={() => navigation.navigate("Produits favoris")} /*onPress={changeStyle.bind("white")} onPressOut={changeStyle.bind("black")}*/ style={styles.circle} underlayColor="orange">
+                <Div>
+                    <Title tag="h4" style={{color: textColor}}>Favoris</Title>
+                </Div>
+            </TouchableHighlight>
         </Div> 
     </Div>);
 
