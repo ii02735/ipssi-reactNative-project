@@ -1,6 +1,7 @@
-import { errorState, errorsActionTypes, ADD_ERROR, REMOVE_ERROR, CLEAR_ERRORS } from "./types.js";
+import initialState from "../initialState.json";
+import { errorState, errorsActionTypes, ADD_ERROR, REMOVE_ERROR, CLEAR_ERRORS } from "./types";
 
-export default function errors(state:errorState, action:errorsActionTypes):errorState
+export default function errors(state:errorState = initialState.errors, action:errorsActionTypes):errorState
 {
     switch(action.type) {
 
