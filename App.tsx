@@ -1,6 +1,6 @@
 import "react-native-gesture-handler";
 import React from "react";
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Button } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeView from "./src/views/HomeView";
@@ -18,7 +18,9 @@ const App = ():JSX.Element => {
        <Stack.Navigator>
           <Stack.Screen name="Accueil" component={HomeView} />
           <Stack.Screen name="Scanner" component={ScannerView}/>
-          <Stack.Screen name="Résultats" component={ResultsView} />
+          <Stack.Screen name="Résultats" component={ResultsView} options={ ({navigation,route}:any) => ({
+              headerLeft: () => (<Button title="Retourner à l'accueil" onPress={() => navigation.navigate("Accueil")}/>)
+          }) } />
        </Stack.Navigator>
      </NavigationContainer>
   )
