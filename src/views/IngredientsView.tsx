@@ -1,7 +1,7 @@
-import { StyleSheet, View as Div, Dimensions, Text, ActivityIndicator } from 'react-native';
-import { Table, Row, TableWrapper, Rows, Col, Cols, Cell } from 'react-native-table-component';
-import { Title, Br } from "../components/utils/HtmlTags";
-import React, { useEffect, useState } from "react";
+import { StyleSheet, View as Div } from 'react-native';
+import { Table, Row, TableWrapper, Cell } from 'react-native-table-component';
+import { Br } from "../components/utils/HtmlTags";
+import React from "react";
 import { ScrollView } from 'react-native-gesture-handler';
 import Markdown from 'react-native-markdown-display';
 import Ingredient from '../Model/Ingredient';
@@ -10,11 +10,9 @@ const IngredientsView = ({navigation, route}:any) => {
     const { product } = route.params;
 
     const content = (
-    <ScrollView  horizontal={true} style={styles.container}>
-    <Br/>
-    
-    <ScrollView>
-    <Markdown>En **_italique_** : les ingrédients allergènes</Markdown>
+    <ScrollView style={{ flex: 1}}>
+    <Markdown style={{ body: { backgroundColor: "#fff", paddingHorizontal: 20 } }}>En **_italique_** : les ingrédients allergènes</Markdown>
+    <ScrollView horizontal={true} style={styles.container}>
         <Table borderStyle={{borderColor: 'black', borderWidth: 1}}>
             
             <Row textStyle={{ padding: 5, width: 200, fontWeight: "bold" }} data={["Intitulé","Composition min", "Composition max", "Végétarien ?", "Végan ?", "Sous-ingrédients ?"]}/>
