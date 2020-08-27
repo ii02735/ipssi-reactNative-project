@@ -1,5 +1,5 @@
-import Product from "../src/Model/Product";
+import { Product, HistoryProduct } from "../src/Model/Product";
 
 //Ce type n'existe que pour typer le state global
 
-export type StateStore = { favoriteProducts: Product[], errors: string[] };
+export type StateStore = { favoriteProducts: Product[], errors: string[], searchedProducts: HistoryProduct[] };

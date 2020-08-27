@@ -1,6 +1,6 @@
 import Ingredient from "./Ingredient";
 
-export default interface Product {
+export interface Product {
     nom?: string, //generic_name_fr
     marque: string, //brands
     ciqual?: string, //composition nutritionnelle d'un aliment au vu de la table Ciqual, category_properties[ciqual_food_name:fr]
@@ -14,4 +14,9 @@ export default interface Product {
     etiquettes: string, //labels
     keywords: string[], //keywords
     dateFavori?: string
+}
+
+export interface HistoryProduct extends Product {
+    id: number, //le code-barres en tant qu'id ne suffit plus car on peut avoir plusieurs fois la même occurrence dans l'historique
+    dateSearched: string
 }
