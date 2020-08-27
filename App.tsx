@@ -1,8 +1,8 @@
 import "react-native-gesture-handler";
 import React from "react";
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Button, Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, HeaderBackButton } from '@react-navigation/stack';
 import HomeView from "./src/views/HomeView";
 import ScannerView from "./src/views/ScannerView";
 import ResultsView from "./src/views/ResultsView";
@@ -30,7 +30,8 @@ const App = ():JSX.Element => {
        <Stack.Navigator>
           <Stack.Screen name="Accueil" component={HomeView} />
           <Stack.Screen name="Scanner" component={ScannerView}/>
-          <Stack.Screen name="Données produits"  component={ResultsView} />
+          <Stack.Screen name="Résultats"  component={ResultsView} options={ResultsView.navigationOptions}/>
+          <Stack.Screen name="Données produit"  component={ResultsView} />
           <Stack.Screen name="Ingrédients" component={IngredientsView} />
           <Stack.Screen name="Produits favoris" component={FavoriteView} />
        </Stack.Navigator>

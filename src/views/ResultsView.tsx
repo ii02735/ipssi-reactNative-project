@@ -2,7 +2,7 @@ import React from "react";
 import fetch from "isomorphic-fetch";
 import { StyleSheet, View as Div, Dimensions, Text, ActivityIndicator, Button, Image, Alert } from 'react-native';
 import { Title, Br } from "../components/utils/HtmlTags";
-import Product from "../Model/Product";
+import { Product } from "../Model/Product";
 import Moment from "moment";
 import { ScrollView } from "react-native-gesture-handler";
 import Ingredient from "../Model/Ingredient";
@@ -10,8 +10,9 @@ import { connect } from "react-redux";
 import { addNewProduct, removeProduct } from "../../store/favoriteProducts/actions";
 import { StateStore } from "../../store/types";
 import { FavProductState } from "../../store/favoriteProducts/types";
-import { removeOldError } from "../../store/errors/actions";
-import { errorState } from "../../store/errors/types";
+import { errorState, REMOVE_ERROR } from "../../store/errors/types";
+import Markdown from "react-native-markdown-display";
+import { HeaderBackButton } from "@react-navigation/stack";
 
 /**
  * 
@@ -30,7 +31,7 @@ const mapDispatchToProps = (dispatch:any) => {
     return {
         addFavorite: (productState:FavProductState,product:Product) => dispatch(addNewProduct(productState,product)),
         removeFavorite: (productState:FavProductState,product:Product) => dispatch(removeProduct(productState,product)),
-        removeError: (errorState:errorState,error:string) => dispatch(removeOldError(errorState,error))
+        removeLastError: () => dispatch({ type: REMOVE_ERROR })
     }
 }
 
@@ -38,7 +39,8 @@ const mapDispatchToProps = (dispatch:any) => {
  // Le type de l'interface doit regrouper les attributs nécessaires au composant (State<Product> s'il y a juste un product à manipuler par exemple)
  
 class ResultsView extends React.Component<any,any>
-{
+{   
+
     constructor(props:any)
     {
         super(props);
@@ -46,7 +48,16 @@ class ResultsView extends React.Component<any,any>
             product: null,
             found: null
         }
-        
+    }   
+
+    /**
+     * Propriété statique uniquement utilisée pour les résultats du scanner
+     * On ne revient pas sur l'écran du scanner lorsqu'on clique sur le bouton headerLeft du StackNavigator
+     */
+    static navigationOptions = ({navigation}:any) => {
+        return {
+            headerLeft: (props:any) => (<HeaderBackButton {...props} onPress={() => navigation.navigate("Accueil")} />)
+        }
     }
 
     /**
@@ -62,8 +73,8 @@ class ResultsView extends React.Component<any,any>
                 .then((object:any) => {
                     const props = this.props;
                     if(mounted && object.status === 1){ //modifier l'état uniquement lorsque le component est bien monté (durant exécution de useEffect / componentDidMount)
-                        const { generic_name, brands, id, countries, stores, manufacturing_places, image_front_url, labels, _keywords }= object.product;
-                        const ciqual_food_name:string = object.product.category_properties["ciqual_food_name:fr"];
+                        const { product_name, brands, id, countries, stores, manufacturing_places, image_front_url, labels, _keywords }= object.product;
+                        const ciqual_food_name:string = object.product.category_properties["ciqual_food_name:fr"] || null;
                         const entry_dates_tags:string = object.product.entry_dates_tags[0];
                         
                         let ingredientsArray:Ingredient[] = [];
@@ -74,8 +85,11 @@ class ResultsView extends React.Component<any,any>
                                 percent_max = Math.round((typeof percent_max === "number" ? percent_max : parseFloat(percent_max)) * 100) / 100;
                                 ingredientsArray.push({ text, percent_min, percent_max, vegetarian, vegan, has_sub_ingredients });
                             });
-                        
-                        let product:Product = { nom: generic_name || "Produit sans nom",
+                        /**
+                         * On fait un mapping des résultats de l'API
+                         * aux propriétés de l'objet Product
+                         */  
+                        let product:Product = { nom: product_name || "Produit sans nom",
                                                 barcode: id, 
                                                 ciqual: ciqual_food_name || "inconnue", 
                                                 creation_time: Moment(entry_dates_tags).format("DD/MM/YYYY"), 
@@ -118,14 +132,34 @@ class ResultsView extends React.Component<any,any>
     }
 
     //Doit être lancé pour demander confirmation si on souhaite supprimer le produit des favoris
-    shouldComponentUpdate = (nextProps:any) =>
+    shouldComponentUpdate = (prevProps:any,prevState:any) =>
     {
-        if(!this.props.route.params.scanner && this.props.favorites.length != nextProps.favorites.length)
+        //Si on a supprimé un produit des favoris, on revient en arrière
+        if(!this.props.route.params.scanner && this.props.favorites.length != prevProps.favorites.length)
         {
             this.props.navigation.goBack();
-            return false; //on ne met pas à jour pour économiser des ressources
+            return false; //on ne met pas à jour l'écran des résultats pour économiser des ressources
         }
-        return true;
+        if( prevState.product != this.state.product
+         || (prevProps.favorites.length != this.props.favorites.length)   
+         || ((prevState.found !== this.state.found && this.state.found)) ){
+            console.log("Mise à jour composant")
+            return true;
+        }
+        console.log("Résultats favoris",prevProps.favorites.length, this.props.favorites.length)
+        if((prevState.found !== this.state.found && !this.state.found))
+        {
+            console.log("asking for retry")
+            this.askRetry();
+        }
+
+        if(this.props.errors.length != prevProps.errors.length)
+        {
+            return true;
+        }
+        
+
+        return false;
     }
 
     componentDidUpdate = (prevProps:any) => {
@@ -143,6 +177,8 @@ class ResultsView extends React.Component<any,any>
         else{
             if(this.props.errors.length > 0)
                 Alert.alert("Erreur",this.props.errors.pop());
+                this.props.removeLastError();
+                console.log(this.props.errors)
         }
     }
 
@@ -180,7 +216,7 @@ class ResultsView extends React.Component<any,any>
                             <Text style={{ marginTop: 15 }}>Date de création : {product.creation_time}</Text>
                             <Text style={{ marginTop: 15 }}>Pays vendeur : {product.pays_vente} </Text>
                             <Text style={{ marginTop: 15 }}>Pays producteur : {product.pays_producteur}</Text>
-                            <Text style={{ marginTop: 15}}>Classification CIQUAL : {product.ciqual}</Text>
+                            <Markdown style={{ body: {marginTop: 15} }}>{`Classification CIQUAL : ${product.ciqual && product.ciqual.replace(/-/g,"_")}`}</Markdown> 
                             <Text style={{ marginTop: 15}}>Mots-clés : {product.keywords.join(", ")}</Text>
                             
                             <Br/>
@@ -191,8 +227,6 @@ class ResultsView extends React.Component<any,any>
                             </Div>
                             
                         </ScrollView>)
-        }else if(this.state.found === false){
-            render = <Title tag="h3" style={{ color: "crimson" }}>Le produit n'a pas été trouvé : réessayez.</Title>
         }else{
             render = <ActivityIndicator size = "large"/>
         }
