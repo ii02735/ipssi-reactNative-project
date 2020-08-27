@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { StyleSheet, View as Div } from 'react-native';
+import { StyleSheet, View as Div, Text } from 'react-native';
 import { Title } from "../components/utils/HtmlTags";
 import { TouchableHighlight } from 'react-native-gesture-handler';
-
+import { FlatGrid } from "react-native-super-grid";
+import SquareNavElement from '../components/SquareNavElement';
 /**
  * Injection de l'objet navigation afin
  * de pouvoir naviguer sur plusieurs autres
@@ -21,24 +22,17 @@ const HomeView = ({navigation}:any):JSX.Element => {
 
     return (
     <Div style={styles.container}>
-        <Title tag="h3">Que souhaitez-vous faire ?</Title>
+        <Title tag="h4">Que souhaitez-vous faire ?</Title>
         <Div style={styles.column}>
-            {/** 
-             * TouchableHighlight pour pouvoir toucher sur un groupe de composants 
-             * On enferme la callback de onPress dans une constante pour optimisation
-             * underlayColor pour préciser couleur au toucher
-             **/}
-            <TouchableHighlight onPress={() => navigation.navigate("Scanner")} /*onPress={changeStyle.bind("white")} onPressOut={changeStyle.bind("black")}*/ style={styles.circle} underlayColor="#5285e3">
-                <Div>
-                    <Title tag="h4" style={{color: textColor}}>Scanner</Title>
-                </Div>
-            </TouchableHighlight>
-            <TouchableHighlight onPress={() => navigation.navigate("Produits favoris")} /*onPress={changeStyle.bind("white")} onPressOut={changeStyle.bind("black")}*/ style={styles.circle} underlayColor="orange">
-                <Div>
-                    <Title tag="h4" style={{color: textColor}}>Favoris</Title>
-                </Div>
-            </TouchableHighlight>
-        </Div> 
+            <FlatGrid style={styles.grid} data={[
+                {  key: "Scanner", color: "#1389b0", underlay: "#51c6ed", route: "Scanner" },
+                {  key: "Favoris", color: "orange", underlay: "gold", route: "Produits favoris"  },
+                {  key: "Historique", color: "#8a4394", underlay: "purple", route: "Historique" }
+            ]} renderItem={({ item }) => 
+               <SquareNavElement key={item.key} navigation={navigation} { ...item }>
+                   <Title tag="h4" style={{ color: "white" }}>{item.key}</Title>
+               </SquareNavElement>} />
+        </Div>  
     </Div>);
 
 };
@@ -48,23 +42,18 @@ export default HomeView;
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
+      flex: 1,  
       backgroundColor: '#fff',
-      padding: 50,
+      padding: 30,
       alignItems: "center"
     },
     column:{
-      flexDirection: "column",
+      flexDirection: "row",
       justifyContent: "space-around",
-      flex: 1
+      alignItems: "center"
     },
-    circle: {
-        borderRadius: 100,
-        borderColor: "black",
-        borderWidth: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        height: 200,
-        width: 200
+    grid: {
+        flex: 1,
+        marginTop: 40
     }
 });
