@@ -68,7 +68,7 @@ class ResultsView extends React.Component<ResultsProps,FetchProduct>
 
     componentDidMount = () => {
         //Si on est passé par la route du scanner, on scanne le nouveau produit
-        if(this.props.route.params.scanner){
+        if(this.props.route.params.fetch){
                 let mounted:boolean = true;
                 fetch(`https://fr.openfoodfacts.org/api/v0/product/${this.props.route.params.data}`)
                 .then((response:any) => response.json())
@@ -140,7 +140,7 @@ class ResultsView extends React.Component<ResultsProps,FetchProduct>
     shouldComponentUpdate = (prevProps:any,prevState:any) =>
     {
         //Si on a supprimé un produit des favoris, on revient en arrière
-        if(!this.props.route.params.scanner && this.props.favorites.length != prevProps.favorites.length)
+        if(!this.props.route.params.fetch && this.props.favorites.length != prevProps.favorites.length)
         {
             this.props.navigation.goBack();
             return false; //on ne met pas à jour l'écran des résultats pour économiser des ressources
@@ -228,7 +228,7 @@ class ResultsView extends React.Component<ResultsProps,FetchProduct>
                             <Div style={{flex:1, flexDirection: "column", marginVertical: 10, justifyContent: "space-between"}}>   
                                 <Button title="Consulter ingrédients" onPress={() => navigation.navigate("Ingrédients",{ product })}/>
                                 <Br/>
-                                { this.props.route.params.scanner ? <Button title="Ajouter aux favoris" color="orange" onPress={() => addFavorite(favorites,product) }/> : <Button title="Supprimer des favoris" color="crimson" onPress={this.confirmDeletion}/> }
+                                { this.props.route.params.fetch ? <Button title="Ajouter aux favoris" color="orange" onPress={() => addFavorite(favorites,product) }/> : <Button title="Supprimer des favoris" color="crimson" onPress={this.confirmDeletion}/> }
                             </Div>
                             
                         </ScrollView>)

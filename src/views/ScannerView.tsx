@@ -22,7 +22,7 @@ const ScannerView = ({navigation}:any):JSX.Element => {
     //on déclenche la fonction lorsque le code-barres est analysé
     //Le type et les données du code-barres y sont injectées par BarCodeScanner
     const scannedBarCodeHandler = ({type,data}:any) => {
-        navigation.navigate("Résultats",{type,data, scanner: true })
+        navigation.navigate("Résultats",{type,data, fetch: true })
     }
 
     return (

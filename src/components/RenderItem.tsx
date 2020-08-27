@@ -26,7 +26,7 @@ const RenderItem = ({ navigation, route, product }:{ navigation: any, route: any
                 {details}
             </Markdown>
             <Div>
-                <Button title="Consulter" onPress={() => navigation.navigate("Données produit", {product, scanner: false})} />
+                <Button title="Consulter" onPress={() => navigation.navigate("Données produit", {product, fetch: false})} />
             </Div>
             </Div>)
 }
