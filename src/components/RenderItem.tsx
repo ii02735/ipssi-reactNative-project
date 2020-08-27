@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, View as Div, Dimensions, Text, FlatList, ActivityIndicator, Button, Image, Alert } from 'react-native';
+import React from "react";
+import { View as Div, Button, Image, Dimensions } from 'react-native';
 import Markdown from "react-native-markdown-display";
 import { Product } from "../Model/Product";
 import { FavProductState } from "../../store/favoriteProducts/types";
 import { removeProduct } from "../../store/favoriteProducts/actions";
 import { connect } from "react-redux";
+import ScaledImage from "./ResizedImage";
 
 const mapDispatchToProps = (dispatch:any) => {
     return {
@@ -20,7 +21,7 @@ const RenderItem = ({ navigation, route, product }:{ navigation: any, route: any
 `;
     
     return (<Div key={product.barcode} style={{ borderColor: "black", borderWidth: 1, padding: 30, marginBottom: 50 }}>
-            <Image source={{ uri: product.image_url }} style={{ width: 250, height: 200, marginBottom: 10 }}/>
+            <ScaledImage uri={product.image_url} />
             <Markdown style={{ body: { margin: 10 } }}>
                 {details}
             </Markdown>
