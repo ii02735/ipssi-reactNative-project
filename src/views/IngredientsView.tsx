@@ -10,10 +10,11 @@ const IngredientsView = ({navigation, route}:any) => {
     const { product } = route.params;
 
     const content = (
-    <Div style={styles.container}>
+    <ScrollView  horizontal={true} style={styles.container}>
     <Br/>
+    
+    <ScrollView>
     <Markdown>En **_italique_** : les ingrédients allergènes</Markdown>
-    <ScrollView horizontal={true}>
         <Table borderStyle={{borderColor: 'black', borderWidth: 1}}>
             
             <Row textStyle={{ padding: 5, width: 200, fontWeight: "bold" }} data={["Intitulé","Composition min", "Composition max", "Végétarien ?", "Végan ?", "Sous-ingrédients ?"]}/>
@@ -43,8 +44,8 @@ const IngredientsView = ({navigation, route}:any) => {
                 ))
             }
         </Table>
-    </ScrollView>
-    </Div>);
+        </ScrollView>
+    </ScrollView>);
 
     return content;
 }
@@ -54,7 +55,6 @@ const styles = StyleSheet.create({
       flex: 1,
       backgroundColor: '#fff',
       padding: 20,
-      alignItems: "center",
     }
 });
 
