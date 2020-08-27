@@ -1,5 +1,5 @@
 import { FavProductActionTypes, FavProductState, ADD_PRODUCT, REMOVE_PRODUCT } from "./types";
-import Product from "../../src/Model/Product";
+import { Product } from "../../src/Model/Product";
 import { errorsActionTypes, ADD_ERROR } from "../errors/types";
 import Moment from "moment";
 /**

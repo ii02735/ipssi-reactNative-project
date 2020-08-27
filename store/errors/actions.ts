@@ -12,16 +12,3 @@ export function addNewError(stateErrors:errorState, newError:string):errorsActio
          payload: newError
      }   
 }
-
-export function removeOldError(stateErrors:errorState, errorToBeRemoved:string):errorsActionTypes
-{
-    if(!stateErrors.find((error:string) => error === errorToBeRemoved))
-        return {
-            type: DEFAULT
-        } //pas la peine d'envoyer un message d'erreur si le message n'a pas été trouvé
-    
-     return {
-         type: REMOVE_ERROR,
-         payload: errorToBeRemoved
-     }   
-}

@@ -15,8 +15,10 @@ export default function errors(state:errorState = initialState.errors, action:er
         
         case REMOVE_ERROR:
 
-            //On récupère les produits ajoutés à l'exception du produit à supprimer
-            return state.filter((error) => error !== action.payload);
+            //On retire la dernière erreur
+            const statecpy_remove = state.slice();
+            statecpy_remove.pop();
+            return statecpy_remove;
 
         case CLEAR_ERRORS:
 
