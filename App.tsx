@@ -15,7 +15,6 @@ import { createStore, combineReducers } from "redux";
 import { Provider } from "react-redux";
 import FavoriteView from "./src/views/FavoriteView";
 import HistoryView from "./src/views/HistoryView";
-import { Ionicons } from '@expo/vector-icons';
 
 const store = createStore(combineReducers({
   favoriteProducts: favoriteProductsReducer,
@@ -26,7 +25,6 @@ const store = createStore(combineReducers({
 const App = ():JSX.Element => {
 
   const Stack = createStackNavigator();
-  const Tab = createBottomTabNavigator();
   /**
    * Mise en place de la navigation inter-écrans
    */
