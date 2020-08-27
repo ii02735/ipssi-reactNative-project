@@ -1,5 +1,8 @@
 {
     "favoriteProducts": [],
-    "historyProducts": [],
+    "searchedProducts" : {
+        "current": {},
+        "historyProducts": []
+    },
     "errors": []
 }

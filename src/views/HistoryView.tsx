@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, View as Div, FlatList, Button, Alert, Text } from 'react-native';
 import { HistoryProduct } from "../Model/Product";
 import { Title, Br } from "../components/utils/HtmlTags";
-import { HistoryProductTypes, HistoryProductState, REMOVE_TO_HISTORY } from "../../store/searchedProduct/types";
+import { REMOVE_TO_HISTORY } from "../../store/searchedProduct/types";
 import { connect } from "react-redux";
 import { StateStore } from "../../store/types";
 import { Table, Row, TableWrapper, Cell } from 'react-native-table-component';
@@ -10,7 +10,7 @@ import { ScrollView } from "react-native-gesture-handler";
 
 const mapStateToProps = (stateStore:StateStore) => {
     return {
-        historyProducts: stateStore.searchedProducts
+        historyProducts: stateStore.searchedProducts.historyProducts
     }
 }
 

@@ -5,10 +5,20 @@ import React from "react";
 import { ScrollView } from 'react-native-gesture-handler';
 import Markdown from 'react-native-markdown-display';
 import Ingredient from '../Model/Ingredient';
+import { Product } from '../Model/Product';
+import { StateStore } from '../../store/types';
+import { connect } from 'react-redux';
 
-const IngredientsView = ({navigation, route}:any) => {
-    const { product } = route.params;
+const mapStateToProps = (stateStore:StateStore) => 
+{
+    return {
+        product: stateStore.searchedProducts.current
+    }
+}
 
+type IngredientsViewProps = { navigation: any, route: any, product: Product}
+
+const IngredientsView = ({navigation, route, product}:IngredientsViewProps) => {
     const content = (
     <ScrollView style={{ flex: 1}}>
     <Markdown style={{ body: { backgroundColor: "#fff", paddingHorizontal: 20 } }}>En **_italique_** : les ingrédients allergènes</Markdown>
@@ -56,4 +66,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default IngredientsView;
+export default connect(mapStateToProps,null)(IngredientsView);

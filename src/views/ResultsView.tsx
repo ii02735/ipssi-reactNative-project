@@ -13,7 +13,7 @@ import { FavProductState } from "../../store/favoriteProducts/types";
 import { errorState, REMOVE_ERROR } from "../../store/errors/types";
 import Markdown from "react-native-markdown-display";
 import { HeaderBackButton } from "@react-navigation/stack";
-import { ADD_TO_HISTORY } from "../../store/searchedProduct/types";
+import { ADD_TO_HISTORY, SET_PRODUCT } from "../../store/searchedProduct/types";
 import ScaledImage from "../components/ResizedImage";
 
 /**
@@ -26,7 +26,7 @@ const mapStateToProps = (stateStore:StateStore) => {
     return {
         favorites: stateStore.favoriteProducts,
         errors: stateStore.errors,
-        history: stateStore.searchedProducts
+        history: stateStore.searchedProducts.historyProducts
     }
 }
 
@@ -35,18 +35,19 @@ const mapDispatchToProps = (dispatch:any) => {
         addFavorite: (productState:FavProductState,product:Product) => dispatch(addNewProduct(productState,product)),
         removeFavorite: (productState:FavProductState,product:Product) => dispatch(removeProduct(productState,product)),
         updateHistory: (product:HistoryProduct) => dispatch({ type: ADD_TO_HISTORY, payload: product }),
+        setCurrentProduct: (product:Product) => dispatch({ type: SET_PRODUCT, payload: product }),
         removeLastError: () => dispatch({ type: REMOVE_ERROR })
     }
 }
 
  type FetchProduct = { product: Product|null, found: boolean|null }
 
- type ResultsProps = { route: any, navigation: any, favorites: Product[], errors: string[], history: HistoryProduct[], addFavorite: Function, removeFavorite: Function, removeLastError: Function, updateHistory: Function }
+ type ResultsProps = { route: any, navigation: any, favorites: Product[], errors: string[], history: HistoryProduct[], addFavorite: Function, removeFavorite: Function, removeLastError: Function, updateHistory: Function, setCurrentProduct: Function }
 
 class ResultsView extends React.Component<ResultsProps,FetchProduct>
 {   
 
-    constructor(props:any)
+    constructor(props:ResultsProps)
     {
         super(props);
         this.state = { product: null, found: null}
@@ -107,6 +108,9 @@ class ResultsView extends React.Component<ResultsProps,FetchProduct>
                         const nextHistoryId:number = this.props.history.length;
                         const searchedProduct:HistoryProduct = { id: nextHistoryId, barcode: id, nom: product_name, dateSearched: Moment(new Date).format("DD/MM/YYYY") }
                         this.props.updateHistory(searchedProduct)
+                        //On conserve le produit recherché pour ensuite le récupérer depuis la liste des ingrédients
+                        this.props.setCurrentProduct(this.state.product);
+                        
                     }else{
                     this.setState({ found: false })
                     }
@@ -116,6 +120,8 @@ class ResultsView extends React.Component<ResultsProps,FetchProduct>
             })
         }else{ //sinon on est venu depuis la route des favoris, le produit étant déjà injecté : pas la peine de fetch
             this.setState({ product: this.props.route.params.product })
+            //On conserve le produit recherché pour ensuite le récupérer depuis la liste des ingrédients
+            this.props.setCurrentProduct(this.props.route.params.product);
         }
     }
 
@@ -226,7 +232,7 @@ class ResultsView extends React.Component<ResultsProps,FetchProduct>
                             
                             <Br/>
                             <Div style={{flex:1, flexDirection: "column", marginVertical: 10, justifyContent: "space-between"}}>   
-                                <Button title="Consulter ingrédients" onPress={() => navigation.navigate("Ingrédients",{ product })}/>
+                                <Button title="Consulter ingrédients" onPress={() => navigation.navigate("Ingrédients")}/>
                                 <Br/>
                                 { this.props.route.params.fetch ? <Button title="Ajouter aux favoris" color="orange" onPress={() => addFavorite(favorites,product) }/> : <Button title="Supprimer des favoris" color="crimson" onPress={this.confirmDeletion}/> }
                             </Div>
