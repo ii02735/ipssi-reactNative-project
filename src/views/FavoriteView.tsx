@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View as Div, Dimensions, Text, FlatList, ActivityIndicator, Button, Image, Alert } from 'react-native';
+import { StyleSheet, View as Div, FlatList, Button, Alert } from 'react-native';
 import { connect } from "react-redux";
 import { StateStore } from "../../store/types";
 import { Product } from "../Model/Product";
