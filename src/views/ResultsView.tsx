@@ -2,7 +2,7 @@ import React from "react";
 import fetch from "isomorphic-fetch";
 import { StyleSheet, View as Div, Dimensions, Text, ActivityIndicator, Button, Image, Alert } from 'react-native';
 import { Title, Br } from "../components/utils/HtmlTags";
-import { Product } from "../Model/Product";
+import { Product, HistoryProduct } from "../Model/Product";
 import Moment from "moment";
 import { ScrollView } from "react-native-gesture-handler";
 import Ingredient from "../Model/Ingredient";
@@ -13,6 +13,8 @@ import { FavProductState } from "../../store/favoriteProducts/types";
 import { errorState, REMOVE_ERROR } from "../../store/errors/types";
 import Markdown from "react-native-markdown-display";
 import { HeaderBackButton } from "@react-navigation/stack";
+import { ADD_TO_HISTORY } from "../../store/searchedProduct/types";
+import ScaledImage from "../components/ResizedImage";
 
 /**
  * 
@@ -23,7 +25,8 @@ import { HeaderBackButton } from "@react-navigation/stack";
 const mapStateToProps = (stateStore:StateStore) => {
     return {
         favorites: stateStore.favoriteProducts,
-        errors: stateStore.errors
+        errors: stateStore.errors,
+        history: stateStore.searchedProducts
     }
 }
 
@@ -31,23 +34,22 @@ const mapDispatchToProps = (dispatch:any) => {
     return {
         addFavorite: (productState:FavProductState,product:Product) => dispatch(addNewProduct(productState,product)),
         removeFavorite: (productState:FavProductState,product:Product) => dispatch(removeProduct(productState,product)),
+        updateHistory: (product:HistoryProduct) => dispatch({ type: ADD_TO_HISTORY, payload: product }),
         removeLastError: () => dispatch({ type: REMOVE_ERROR })
     }
 }
 
- // TODO Définir une interface générique pour le state (premier type), et le props (premier type)
- // Le type de l'interface doit regrouper les attributs nécessaires au composant (State<Product> s'il y a juste un product à manipuler par exemple)
- 
-class ResultsView extends React.Component<any,any>
+ type FetchProduct = { product: Product|null, found: boolean|null }
+
+ type ResultsProps = { route: any, navigation: any, favorites: Product[], errors: string[], history: HistoryProduct[], addFavorite: Function, removeFavorite: Function, removeLastError: Function, updateHistory: Function }
+
+class ResultsView extends React.Component<ResultsProps,FetchProduct>
 {   
 
     constructor(props:any)
     {
         super(props);
-        this.state = {
-            product: null,
-            found: null
-        }
+        this.state = { product: null, found: null}
     }   
 
     /**
@@ -71,9 +73,9 @@ class ResultsView extends React.Component<any,any>
                 fetch(`https://fr.openfoodfacts.org/api/v0/product/${this.props.route.params.data}`)
                 .then((response:any) => response.json())
                 .then((object:any) => {
-                    const props = this.props;
+                  
                     if(mounted && object.status === 1){ //modifier l'état uniquement lorsque le component est bien monté (durant exécution de useEffect / componentDidMount)
-                        const { product_name, brands, id, countries, stores, manufacturing_places, image_front_url, labels, _keywords }= object.product;
+                        const { product_name, brands, id, countries, stores, manufacturing_places, image_small_url, labels, _keywords }= object.product;
                         const ciqual_food_name:string = object.product.category_properties["ciqual_food_name:fr"] || null;
                         const entry_dates_tags:string = object.product.entry_dates_tags[0];
                         
@@ -94,14 +96,17 @@ class ResultsView extends React.Component<any,any>
                                                 ciqual: ciqual_food_name || "inconnue", 
                                                 creation_time: Moment(entry_dates_tags).format("DD/MM/YYYY"), 
                                                 etiquettes: labels, 
-                                                image_url: image_front_url, 
+                                                image_url: image_small_url, 
                                                 ingredients: ingredientsArray, 
                                                 keywords: _keywords, 
                                                 magasins_vente: stores, 
                                                 marque: brands, 
                                                 pays_producteur: manufacturing_places, 
-                                                pays_vente: countries };
+                                                pays_vente: countries };                        
                         this.setState({ product: product, found: true })
+                        const nextHistoryId:number = this.props.history.length;
+                        const searchedProduct:HistoryProduct = { id: nextHistoryId, barcode: id, nom: product_name, dateSearched: Moment(new Date).format("DD/MM/YYYY") }
+                        this.props.updateHistory(searchedProduct)
                     }else{
                     this.setState({ found: false })
                     }
@@ -203,14 +208,14 @@ class ResultsView extends React.Component<any,any>
     //FIXME Trouver un moyen de revenir sur l'écran d'accueil en passant les tabs
     render(){
         const {navigation,favorites,addFavorite} = this.props;
-        const product:Product = this.state.product;
+        const { product } = this.state;
         let render = null;
 
-        if(this.state.product)
+        if(product)
         {
             render =  (<ScrollView>
                             <Title tag="h3">{product.nom}</Title>
-                            <Image source={{ uri: product.image_url }} style={{ marginVertical: 20, width: 250, height: 200 }}/>
+                            <ScaledImage uri={product.image_url} />
                             <Text style={{ marginTop: 15 }}>Code-barres : {product.barcode}</Text>
                             <Text style={{ marginTop: 15 }}>Enseigne : {product.marque}</Text>
                             <Text style={{ marginTop: 15 }}>Date de création : {product.creation_time}</Text>
