@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View as Div, Dimensions, Text, FlatList, ActivityIndicator, Button, Image, Alert } from 'react-native';
 import Markdown from "react-native-markdown-display";
-import Product from "../Model/Product";
+import { Product } from "../Model/Product";
 import { FavProductState } from "../../store/favoriteProducts/types";
 import { removeProduct } from "../../store/favoriteProducts/actions";
 import { connect } from "react-redux";
@@ -25,7 +25,7 @@ const RenderItem = ({ navigation, route, product }:{ navigation: any, route: any
                 {details}
             </Markdown>
             <Div>
-                <Button title="Consulter" onPress={() => navigation.navigate("Données produits", {product, scanner: false})} />
+                <Button title="Consulter" onPress={() => navigation.navigate("Données produit", {product, scanner: false})} />
             </Div>
             </Div>)
 }

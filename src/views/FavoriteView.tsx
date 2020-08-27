@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, View as Div, Dimensions, Text, FlatList, ActivityIndicator, Button, Image, Alert } from 'react-native';
 import { connect } from "react-redux";
 import { StateStore } from "../../store/types";
-import Product from "../Model/Product";
+import { Product } from "../Model/Product";
 import { removeProduct } from "../../store/favoriteProducts/actions";
 import RenderItem from "../components/RenderItem";
 import { Title } from "../components/utils/HtmlTags";
+import { CLEAR_PRODUCTS } from "../../store/favoriteProducts/types";
+import { ScrollView } from "react-native-gesture-handler";
 //La seule information qui nous intéresse, sont les produits favoris
 const mapStateToProps = (stateStore:StateStore) => {
     return {
@@ -16,7 +18,8 @@ const mapStateToProps = (stateStore:StateStore) => {
 const mapDispatchToProps = (dispatch: any) => {
 
     return {
-        removeProduct: (stateStore:StateStore,product:Product) => dispatch(removeProduct(stateStore.favoriteProducts,product))
+        removeProduct: (stateStore:StateStore,product:Product) => dispatch(removeProduct(stateStore.favoriteProducts,product)),
+        clearFavorites: () => dispatch({ type: CLEAR_PRODUCTS })
     }
 }
 
@@ -32,13 +35,39 @@ class FavoriteView extends React.Component<any,any>
         return <RenderItem product={item} route={this.props.route} navigation={this.props.navigation} />
     }
 
+    askDelete = () => Alert.alert(
+        "Suppression des favoris",
+        "Confirmez-vous la suppression de tous les favoris ?",
+        [
+            {
+                text: "NON",
+                onPress: () => console.log("Suppression annulée"),
+                style: "cancel"
+            },
+            {
+                text: "OUI",
+                onPress: () => this.props.clearFavorites(),
+                style: "destructive"
+            }
+        ],{ cancelable: false } 
+    )
+
     render()
-    {
-        return (
-            <Div style={styles.container}>
-    { this.props.favorites.length > 0 ?  <FlatList keyExtractor={(item:Product) => item.barcode} renderItem={this.renderList} data={this.props.favorites}/> : <Title tag="h4">Aucun produit rajouté en favoris</Title> }
+    {   
+        let render = this.props.favorites.length > 0 
+            ?  
+            <Div style={styles.container}>  
+                <FlatList keyExtractor={(item:Product) => item.barcode} renderItem={this.renderList} data={this.props.favorites}/>
+                <Div style={{ paddingTop: 15 }}>
+                    <Button color={"crimson"} title="Supprimer les favoris" onPress={this.askDelete}/>
+                </Div> 
             </Div>
-        )
+            : <Title style={styles.container} tag="h4">Aucun produit rajouté en favoris</Title>
+
+      
+        
+
+        return render;
     }
 }
 
