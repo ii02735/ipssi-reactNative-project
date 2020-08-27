@@ -1,7 +1,7 @@
 import { HistoryProduct } from "../../src/Model/Product";
 
-export const ADD_PRODUCT = "ADD_PRODUCT";
-export const REMOVE_PRODUCT = "REMOVE_PRODUCT";
+export const ADD_TO_HISTORY = "ADD_TO_HISTORY";
+export const REMOVE_TO_HISTORY = "REMOVE_TO_HISTORY";
 export const CLEAR_HISTORY = "CLEAR_HISTORY";
 
 /**
@@ -9,12 +9,12 @@ export const CLEAR_HISTORY = "CLEAR_HISTORY";
  */
 
 interface addProductAction {
-    type: typeof ADD_PRODUCT,
+    type: typeof ADD_TO_HISTORY,
     payload: HistoryProduct
 }
 
 interface removeProductAction {
-    type: typeof REMOVE_PRODUCT,
+    type: typeof REMOVE_TO_HISTORY,
     payload: number //on utilisera l'id du produit sauvegardé
 }
 

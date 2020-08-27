@@ -16,7 +16,9 @@ export interface Product {
     dateFavori?: string
 }
 
-export interface HistoryProduct extends Product {
+export interface HistoryProduct {
     id: number, //le code-barres en tant qu'id ne suffit plus car on peut avoir plusieurs fois la même occurrence dans l'historique
+    barcode: string,
+    nom: string,
     dateSearched: string
 }

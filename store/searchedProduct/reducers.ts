@@ -1,12 +1,12 @@
 import initialState from "../initialState.json";
-import { ADD_PRODUCT, REMOVE_PRODUCT, CLEAR_HISTORY, HistoryProductState, HistoryProductTypes} from "./types"
+import { ADD_TO_HISTORY, REMOVE_TO_HISTORY, CLEAR_HISTORY, HistoryProductState, HistoryProductTypes} from "./types"
 import { HistoryProduct } from "../../src/Model/Product";
 
 export default function historyProducts(state:HistoryProductState = initialState.historyProducts, action:HistoryProductTypes):HistoryProductState
 {
     switch(action.type) {
 
-        case ADD_PRODUCT:
+        case ADD_TO_HISTORY:
 
             const statecpy_add:HistoryProductState = state.slice();
 
@@ -14,7 +14,7 @@ export default function historyProducts(state:HistoryProductState = initialState
 
             return statecpy_add;
         
-        case REMOVE_PRODUCT:
+        case REMOVE_TO_HISTORY:
 
             //On récupère les produits ajoutés à l'exception du produit à supprimer
             return state.filter((product:HistoryProduct) => product.id !== action.payload);
