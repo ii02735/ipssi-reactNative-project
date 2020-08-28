@@ -1,7 +1,6 @@
 import React from "react";
 import fetch from "isomorphic-fetch";
 import { StyleSheet, View as Div, Dimensions, Text, ActivityIndicator, Button, Image, Alert } from 'react-native';
-import { Title, Br } from "../components/utils/HtmlTags";
 import { Product, HistoryProduct } from "../Model/Product";
 import Moment from "moment";
 import { ScrollView } from "react-native-gesture-handler";
@@ -15,6 +14,8 @@ import Markdown from "react-native-markdown-display";
 import { HeaderBackButton } from "@react-navigation/stack";
 import { ADD_TO_HISTORY, SET_PRODUCT } from "../../store/searchedProduct/types";
 import ScaledImage from "../components/ResizedImage";
+import { fetchProducts } from "../../store/fetch/actions";
+import { Fetchable, fetchStateType } from "../../store/fetch/types";
 
 /**
  * 
@@ -26,7 +27,8 @@ const mapStateToProps = (stateStore:StateStore) => {
     return {
         favorites: stateStore.favoriteProducts,
         errors: stateStore.errors,
-        history: stateStore.searchedProducts.historyProducts
+        history: stateStore.searchedProducts.historyProducts,
+        fetch: stateStore.fetch
     }
 }
 
@@ -36,32 +38,38 @@ const mapDispatchToProps = (dispatch:any) => {
         removeFavorite: (productState:FavProductState,product:Product) => dispatch(removeProduct(productState,product)),
         updateHistory: (product:HistoryProduct) => dispatch({ type: ADD_TO_HISTORY, payload: product }),
         setCurrentProduct: (product:Product) => dispatch({ type: SET_PRODUCT, payload: product }),
-        removeLastError: () => dispatch({ type: REMOVE_ERROR })
+        removeLastError: () => dispatch({ type: REMOVE_ERROR }),
+        fetchProducts: (barecode:string,multiple:boolean) => dispatch(fetchProducts(barecode,multiple))
     }
 }
 
- type FetchProduct = { product: Product|null, found: boolean|null }
 
- type ResultsProps = { route: any, navigation: any, favorites: Product[], errors: string[], history: HistoryProduct[], addFavorite: Function, removeFavorite: Function, removeLastError: Function, updateHistory: Function, setCurrentProduct: Function }
+ type ResultsProps = { route: any, navigation: any, favorites: Product[], 
+                       errors: string[], history: HistoryProduct[], fetch: fetchStateType,
+                       addFavorite: Function, removeFavorite: Function, 
+                       removeLastError: Function, updateHistory: Function, 
+                       setCurrentProduct: Function, fetchProducts: Function }
 
-class ResultsView extends React.Component<ResultsProps,FetchProduct>
+//Pas d'état propre à la classe (second paramètre à null)
+//On utilise le store de Redux à la place
+class ResultsView extends React.Component<ResultsProps,null>
 {   
 
     constructor(props:ResultsProps)
     {
         super(props);
-        this.state = { product: null, found: null}
     }   
 
     /**
      * Propriété statique uniquement utilisée pour les résultats du scanner
      * On ne revient pas sur l'écran du scanner lorsqu'on clique sur le bouton headerLeft du StackNavigator
      */
-    static navigationOptions = ({navigation}:any) => {
-        return {
-            headerLeft: (props:any) => (<HeaderBackButton {...props} onPress={() => navigation.navigate("Accueil")} />)
-        }
-    }
+    // static navigationOptions = ({navigation}:any) => {
+        
+    //     return {
+    //         headerLeft: (props:any) => (<HeaderBackButton {...props} onPress={() => navigation.navigate("Accueil")} />)
+    //     }
+    // }
 
     /**
      * On fetch les data dès que le composant a été monté
@@ -70,56 +78,27 @@ class ResultsView extends React.Component<ResultsProps,FetchProduct>
     componentDidMount = () => {
         //Si on est passé par la route du scanner, on scanne le nouveau produit
         if(this.props.route.params.fetch){
-                let mounted:boolean = true;
-                fetch(`https://fr.openfoodfacts.org/api/v0/product/${this.props.route.params.data}`)
-                .then((response:any) => response.json())
-                .then((object:any) => {
-                  
-                    if(mounted && object.status === 1){ //modifier l'état uniquement lorsque le component est bien monté (durant exécution de useEffect / componentDidMount)
-                        const { product_name, brands, id, countries, stores, manufacturing_places, image_small_url, labels, _keywords }= object.product;
-                        const ciqual_food_name:string = object.product.category_properties["ciqual_food_name:fr"] || null;
-                        const entry_dates_tags:string = object.product.entry_dates_tags[0];
-                        
-                        let ingredientsArray:Ingredient[] = [];
 
-                        object.product.ingredients.forEach(
-                            ({ text, percent_min, percent_max, vegetarian, vegan, has_sub_ingredients }:Ingredient) => {
-                                percent_min = Math.round((typeof percent_min === "number" ? percent_min : parseFloat(percent_min)) * 100) / 100;
-                                percent_max = Math.round((typeof percent_max === "number" ? percent_max : parseFloat(percent_max)) * 100) / 100;
-                                ingredientsArray.push({ text, percent_min, percent_max, vegetarian, vegan, has_sub_ingredients });
-                            });
-                        /**
-                         * On fait un mapping des résultats de l'API
-                         * aux propriétés de l'objet Product
-                         */  
-                        let product:Product = { nom: product_name || "Produit sans nom",
-                                                barcode: id, 
-                                                ciqual: ciqual_food_name || "inconnue", 
-                                                creation_time: Moment(entry_dates_tags).format("DD/MM/YYYY"), 
-                                                etiquettes: labels, 
-                                                image_url: image_small_url, 
-                                                ingredients: ingredientsArray, 
-                                                keywords: _keywords, 
-                                                magasins_vente: stores, 
-                                                marque: brands, 
-                                                pays_producteur: manufacturing_places, 
-                                                pays_vente: countries };                        
-                        this.setState({ product: product, found: true })
-                        const nextHistoryId:number = this.props.history.length;
-                        const searchedProduct:HistoryProduct = { id: nextHistoryId, barcode: id, nom: product_name, dateSearched: Moment(new Date).format("DD/MM/YYYY") }
-                        this.props.updateHistory(searchedProduct)
-                        //On conserve le produit recherché pour ensuite le récupérer depuis la liste des ingrédients
-                        this.props.setCurrentProduct(this.state.product);
+                
+                let mounted:boolean = true;
+               
+                    if(mounted){ //modifier l'état uniquement lorsque le component est bien monté (durant exécution de useEffect / componentDidMount)
+                        this.props.fetchProducts(this.props.route.params.data,false)
+                        const product:Product|null =  this.props.fetch.loading ? null : this.props.fetch.data as Product;
+                        if(product){
+                            const nextHistoryId:number = this.props.history.length;
+                            const searchedProduct:HistoryProduct = { id: nextHistoryId, barcode: product.barcode, nom: product.nom as string, dateSearched: Moment(new Date).format("DD/MM/YYYY") }
+                            this.props.updateHistory(searchedProduct)
+                            //On conserve le produit recherché pour ensuite le récupérer depuis la liste des ingrédients
+                            this.props.setCurrentProduct(this.props.fetch.data);
+                        }
                         
-                    }else{
-                    this.setState({ found: false })
                     }
                     return function (){
                         mounted = false;
                     }
-            })
+            
         }else{ //sinon on est venu depuis la route des favoris, le produit étant déjà injecté : pas la peine de fetch
-            this.setState({ product: this.props.route.params.product })
             //On conserve le produit recherché pour ensuite le récupérer depuis la liste des ingrédients
             this.props.setCurrentProduct(this.props.route.params.product);
         }
@@ -143,38 +122,54 @@ class ResultsView extends React.Component<ResultsProps,FetchProduct>
     }
 
     //Doit être lancé pour demander confirmation si on souhaite supprimer le produit des favoris
-    shouldComponentUpdate = (prevProps:any,prevState:any) =>
+    shouldComponentUpdate = (nextProps:ResultsProps) =>
     {
-        //Si on a supprimé un produit des favoris, on revient en arrière
-        if(!this.props.route.params.fetch && this.props.favorites.length != prevProps.favorites.length)
+        console.log("shouldComponentUpdate")
+        let result:boolean = false;
+        //Si on a supprimé un produit des favoris, on revient en arrière    
+        if(!this.props.route.params.fetch && this.props.favorites.length != nextProps.favorites.length)
         {
             this.props.navigation.goBack();
-            return false; //on ne met pas à jour l'écran des résultats pour économiser des ressources
+            result = false //on ne met pas à jour l'écran des résultats pour économiser des ressources
         }
-        if( prevState.product != this.state.product
-         || (prevProps.favorites.length != this.props.favorites.length)   
-         || ((prevState.found !== this.state.found && this.state.found)) ){
+
+        //Si les données ont été récupérées, on met à jour l'affichage
+        //Si la liste des favoris a été mise à jour, on met à jour l'affichage pour l'alerte
+        if( nextProps.fetch.data != this.props.fetch.data
+        || (nextProps.favorites.length != this.props.favorites.length)) {
             console.log("Mise à jour composant")
-            return true;
+            result = true;
         }
-        console.log("Résultats favoris",prevProps.favorites.length, this.props.favorites.length)
-        if((prevState.found !== this.state.found && !this.state.found))
+        //Afficher l'alerte si la prochaine prop contient une erreur
+        if(nextProps.fetch.error && (this.props.fetch.error != nextProps.fetch.error))
         {
             console.log("asking for retry")
             this.askRetry();
+            result = false;
         }
 
-        if(this.props.errors.length != prevProps.errors.length)
+        //Permettre l'affichage du spinner
+        if(nextProps.fetch.loading && (this.props.fetch.loading != nextProps.fetch.loading))
         {
-            return true;
+            console.log("Mise à jour composant")
+            result = true;
         }
-        
 
-        return false;
+        if((this.props.errors.length != nextProps.errors.length))
+        {
+            console.log("Mise à jour composant")
+            result = true;
+        }
+
+        if(!result)
+            console.log("no update")
+
+        return result;
+        
     }
 
     componentDidUpdate = (prevProps:any) => {
-        
+        console.log("ResultsView UPDATED")
         // On n'affichera pas une alerte si le produit n'a pas été trouvé, car la caméra sera toujours active en arrière-plan
         // if(typeof this.state.found === "boolean" && !this.state.found)
         // {
@@ -189,7 +184,6 @@ class ResultsView extends React.Component<ResultsProps,FetchProduct>
             if(this.props.errors.length > 0)
                 Alert.alert("Erreur",this.props.errors.pop());
                 this.props.removeLastError();
-                console.log(this.props.errors)
         }
     }
 
@@ -214,13 +208,14 @@ class ResultsView extends React.Component<ResultsProps,FetchProduct>
     //FIXME Trouver un moyen de revenir sur l'écran d'accueil en passant les tabs
     render(){
         const {navigation,favorites,addFavorite} = this.props;
-        const { product } = this.state;
+        let product:Fetchable = null;
         let render = null;
-
-        if(product)
-        {
+        console.log("result render LOADING",this.props.fetch.loading)
+        if(this.props.fetch.data)
+        {   
+            product = this.props.fetch.data as Product;
             render =  (<ScrollView>
-                            <Title tag="h3">{product.nom}</Title>
+                            <Markdown style={{ body: { fontWeight: "bold" } }}>{`## ${product.nom}`}</Markdown>
                             <ScaledImage uri={product.image_url} />
                             <Text style={{ marginTop: 15 }}>Code-barres : {product.barcode}</Text>
                             <Text style={{ marginTop: 15 }}>Enseigne : {product.marque}</Text>
@@ -228,17 +223,18 @@ class ResultsView extends React.Component<ResultsProps,FetchProduct>
                             <Text style={{ marginTop: 15 }}>Pays vendeur : {product.pays_vente} </Text>
                             <Text style={{ marginTop: 15 }}>Pays producteur : {product.pays_producteur}</Text>
                             <Markdown style={{ body: {marginTop: 15} }}>{`Classification CIQUAL : ${product.ciqual && product.ciqual.replace(/-/g,"_")}`}</Markdown> 
-                            <Text style={{ marginTop: 15}}>Mots-clés : {product.keywords.join(", ")}</Text>
+                            <Text style={{ marginVertical: 15}}>Mots-clés : {product.keywords.join(", ")}</Text>
                             
-                            <Br/>
+                            
                             <Div style={{flex:1, flexDirection: "column", marginVertical: 10, justifyContent: "space-between"}}>   
                                 <Button title="Consulter ingrédients" onPress={() => navigation.navigate("Ingrédients")}/>
-                                <Br/>
+                                <Div style={{ marginBottom: 10 }}></Div>
                                 { this.props.route.params.fetch ? <Button title="Ajouter aux favoris" color="orange" onPress={() => addFavorite(favorites,product) }/> : <Button title="Supprimer des favoris" color="crimson" onPress={this.confirmDeletion}/> }
                             </Div>
                             
                         </ScrollView>)
-        }else{
+        }else if(this.props.fetch.loading){
+            console.log("loading...")
             render = <ActivityIndicator size = "large"/>
         }
 

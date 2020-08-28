@@ -40,7 +40,6 @@ export default function searchedProducts(state:searchedProductsState = initialSt
             
             const statecpy4:searchedProductsState = {...state};
             statecpy4.current = action.payload;
-            console.log("SET_PRODUCT",statecpy4.current)
             return statecpy4;
 
         default: 
