@@ -14,4 +14,4 @@ Par conséquent ce dernier devait avoir pour principale fonctionnalité **d'anal
 
 Un serveur **ExpressJS** avait commencé à être conçu pour gérer des utilisateurs en passant par SQLite, mais n'a pas été abouti. Par conséquent, l'application ne possède pas de système d'authentification.
 
-La gestion des états a été converte par **Redux** et les **States** classiques quand cela était nécessaire + le projet a été codé en ***TypeScript***
+La gestion des états a été couverte par **Redux** (donc l'historique et les favoris a été géré par ce dernier) et les **States** classiques quand cela était nécessaire + le projet a été codé en ***TypeScript***
