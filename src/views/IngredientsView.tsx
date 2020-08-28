@@ -1,7 +1,6 @@
 import { StyleSheet, View as Div } from 'react-native';
 import { Table, Row, TableWrapper, Cell } from 'react-native-table-component';
-import { Br } from "../components/utils/HtmlTags";
-import React from "react";
+import React, { useEffect } from "react";
 import { ScrollView } from 'react-native-gesture-handler';
 import Markdown from 'react-native-markdown-display';
 import Ingredient from '../Model/Ingredient';
@@ -19,6 +18,11 @@ const mapStateToProps = (stateStore:StateStore) =>
 type IngredientsViewProps = { navigation: any, route: any, product: Product}
 
 const IngredientsView = ({navigation, route, product}:IngredientsViewProps) => {
+
+    useEffect(() => {
+        console.log("UPDATE IngredientsView")
+    })
+
     const content = (
     <ScrollView style={{ flex: 1}}>
     <Markdown style={{ body: { backgroundColor: "#fff", paddingHorizontal: 20 } }}>En **_italique_** : les ingrédients allergènes</Markdown>

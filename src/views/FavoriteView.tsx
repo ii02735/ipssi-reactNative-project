@@ -5,9 +5,8 @@ import { StateStore } from "../../store/types";
 import { Product } from "../Model/Product";
 import { removeProduct } from "../../store/favoriteProducts/actions";
 import RenderItem from "../components/RenderItem";
-import { Title } from "../components/utils/HtmlTags";
 import { CLEAR_PRODUCTS } from "../../store/favoriteProducts/types";
-import { ScrollView } from "react-native-gesture-handler";
+import Markdown from "react-native-markdown-display";
 //La seule information qui nous intéresse, sont les produits favoris
 const mapStateToProps = (stateStore:StateStore) => {
     return {
@@ -62,7 +61,7 @@ class FavoriteView extends React.Component<any,any>
                     <Button color={"crimson"} title="Supprimer les favoris" onPress={this.askDelete}/>
                 </Div> 
             </Div>
-            : <Title style={styles.container} tag="h4">Aucun produit rajouté en favoris</Title>
+            : <Markdown style={{ body: {flex: 1, fontWeight: "bold" ,backgroundColor: "#fff", padding: 20, alignItems: "center"} }}>{`### Aucun produit rajouté en favoris`}</Markdown>
 
       
         

@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet, View as Div, Text, Dimensions } from 'react-native';
-import { Title } from './utils/HtmlTags';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 
 const SquareNavElement = (props:any) => {
