@@ -5,7 +5,7 @@ import { TouchableHighlight } from "react-native-gesture-handler";
 
 
 type SearchViewState = { barcode: string, disabled: boolean, error: string, request: boolean, data: [] }
-type SearchViewProps = { navigation: any, fetchProducts: Function, clearData: Function }
+type SearchViewProps = { navigation: any }
 
 class SearchView extends React.Component<SearchViewProps,SearchViewState>
 {   
@@ -39,17 +39,6 @@ class SearchView extends React.Component<SearchViewProps,SearchViewState>
             
     }
 
-    componentDidMount()
-    {
-        console.log("component did mount")
-        this.props.clearData();
-    }
-
-    componentWillUnmount()
-    {
-        console.log("SEARCH_VIEW component is unmounting...")
-        this.props.clearData();
-    }
     
     shouldComponentUpdate(nextProps:SearchViewProps,nextState:SearchViewState)
     {
