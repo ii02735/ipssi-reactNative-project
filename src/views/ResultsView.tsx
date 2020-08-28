@@ -15,7 +15,7 @@ import { HeaderBackButton } from "@react-navigation/stack";
 import { ADD_TO_HISTORY, SET_PRODUCT } from "../../store/searchedProduct/types";
 import ScaledImage from "../components/ResizedImage";
 import { fetchProducts } from "../../store/fetch/actions";
-import { Fetchable, fetchStateType } from "../../store/fetch/types";
+import { fetchStateType } from "../../store/fetch/types";
 
 /**
  * 
@@ -39,7 +39,7 @@ const mapDispatchToProps = (dispatch:any) => {
         updateHistory: (product:HistoryProduct) => dispatch({ type: ADD_TO_HISTORY, payload: product }),
         setCurrentProduct: (product:Product) => dispatch({ type: SET_PRODUCT, payload: product }),
         removeLastError: () => dispatch({ type: REMOVE_ERROR }),
-        fetchProducts: (barecode:string,multiple:boolean) => dispatch(fetchProducts(barecode,multiple))
+        fetchProducts: (barecode:string) => dispatch(fetchProducts(barecode))
     }
 }
 
@@ -50,9 +50,9 @@ const mapDispatchToProps = (dispatch:any) => {
                        removeLastError: Function, updateHistory: Function, 
                        setCurrentProduct: Function, fetchProducts: Function }
 
-//Pas d'état propre à la classe (second paramètre à null)
+//Pas d'état propre à la classe (second paramètre à any)
 //On utilise le store de Redux à la place
-class ResultsView extends React.Component<ResultsProps,null>
+class ResultsView extends React.Component<ResultsProps,any>
 {   
 
     constructor(props:ResultsProps)
@@ -83,7 +83,7 @@ class ResultsView extends React.Component<ResultsProps,null>
                 let mounted:boolean = true;
                
                     if(mounted){ //modifier l'état uniquement lorsque le component est bien monté (durant exécution de useEffect / componentDidMount)
-                        this.props.fetchProducts(this.props.route.params.data,false)
+                        this.props.fetchProducts(this.props.route.params.data)
                         const product:Product|null =  this.props.fetch.loading ? null : this.props.fetch.data as Product;
                         if(product){
                             const nextHistoryId:number = this.props.history.length;
@@ -199,7 +199,7 @@ class ResultsView extends React.Component<ResultsProps,null>
                 },
                 {
                     text: "OUI",
-                    onPress: () => this.props.removeFavorite(this.props.favorites,this.state.product),
+                    onPress: () => this.props.removeFavorite(this.props.favorites,this.props.route.params.product),
                     style: "destructive"
                 }
             ],{ cancelable: false } 
@@ -208,23 +208,35 @@ class ResultsView extends React.Component<ResultsProps,null>
     //FIXME Trouver un moyen de revenir sur l'écran d'accueil en passant les tabs
     render(){
         const {navigation,favorites,addFavorite} = this.props;
-        let product:Fetchable = null;
+        let product:Product = this.props.fetch.data;
         let render = null;
         console.log("result render LOADING",this.props.fetch.loading)
-        if(this.props.fetch.data)
+        if(product)
         {   
-            product = this.props.fetch.data as Product;
             render =  (<ScrollView>
                             <Markdown style={{ body: { fontWeight: "bold" } }}>{`## ${product.nom}`}</Markdown>
                             <ScaledImage uri={product.image_url} />
-                            <Text style={{ marginTop: 15 }}>Code-barres : {product.barcode}</Text>
-                            <Text style={{ marginTop: 15 }}>Enseigne : {product.marque}</Text>
-                            <Text style={{ marginTop: 15 }}>Date de création : {product.creation_time}</Text>
-                            <Text style={{ marginTop: 15 }}>Pays vendeur : {product.pays_vente} </Text>
-                            <Text style={{ marginTop: 15 }}>Pays producteur : {product.pays_producteur}</Text>
-                            <Markdown style={{ body: {marginTop: 15} }}>{`Classification CIQUAL : ${product.ciqual && product.ciqual.replace(/-/g,"_")}`}</Markdown> 
-                            <Text style={{ marginVertical: 15}}>Mots-clés : {product.keywords.join(", ")}</Text>
-                            
+                            <Div style={styles.separator}>
+                                <Text style={{ marginTop: 15, fontWeight: "bold" }}>Code-barres : {product.barcode}</Text>
+                            </Div>
+                            <Div style={styles.separator}>
+                                <Text style={{ marginTop: 15 }}>Enseigne : {product.marque}</Text>
+                            </Div>
+                            <Div style={styles.separator}>
+                                <Text style={{ marginTop: 15 }}>Date de création : {product.creation_time}</Text>
+                            </Div>
+                            <Div style={styles.separator}>
+                                <Text style={{ marginTop: 15 }}>Pays vendeur : {product.pays_vente} </Text>
+                            </Div>
+                            <Div style={styles.separator}>
+                                <Text style={{ marginTop: 15 }}>Pays producteur : {product.pays_producteur}</Text>
+                            </Div>
+                            <Div style={styles.separator}>
+                                <Markdown style={{ body: {marginTop: 15} }}>{`Classification CIQUAL : ${product.ciqual && product.ciqual.replace(/-/g,"_")}`}</Markdown> 
+                            </Div>
+                            <Div style={styles.separator}>
+                                <Text style={{ marginVertical: 15}}>Mots-clés : {product.keywords.join(", ")}</Text>
+                            </Div>
                             
                             <Div style={{flex:1, flexDirection: "column", marginVertical: 10, justifyContent: "space-between"}}>   
                                 <Button title="Consulter ingrédients" onPress={() => navigation.navigate("Ingrédients")}/>
@@ -259,6 +271,12 @@ const styles = StyleSheet.create({
     detailsProduct: {
       flex: 3,
       justifyContent: "space-around"
+    },
+    separator: {
+        borderBottomColor: "black",
+        borderWidth: 1,
+        marginVertical: 3,
+        padding: 3
     }
 });
 

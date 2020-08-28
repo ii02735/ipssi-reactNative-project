@@ -4,15 +4,13 @@ export const FETCH_STARTED = "FETCH_STARTED";
 export const FETCH_FINISHED = "FETCH_FINISHED";
 export const FETCH_FAILED = "FETCH_FAILED";
 
-export type Fetchable = Product | null;
-
 interface fetchStartedAction {
     type: typeof FETCH_STARTED
 }
 
 interface fetchFinishedAction {
     type: typeof FETCH_FINISHED,
-    payload: Fetchable
+    payload: any
 }
 
 interface fetchFailedAction {
@@ -22,4 +20,4 @@ interface fetchFailedAction {
 
 export type fetchActionTypes = fetchStartedAction | fetchFinishedAction | fetchFailedAction
 
-export type fetchStateType = { data: Fetchable, loading: boolean, error: boolean }
+export type fetchStateType = { data: any, loading: boolean, error: boolean }
