@@ -3,7 +3,7 @@ import { StyleSheet, View as Div, Dimensions } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import Markdown from 'react-native-markdown-display';
 
-const ScannerView = ({navigation}:any):JSX.Element => {
+const ScannerView = ({navigation,clearData}:any):JSX.Element => {
 
     const [permission,setPermission]  = useState<boolean>();
 
