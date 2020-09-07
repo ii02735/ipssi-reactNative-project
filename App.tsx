@@ -16,13 +16,11 @@ import FavoriteView from "./src/views/FavoriteView";
 import HistoryView from "./src/views/HistoryView";
 import SearchView from "./src/views/SearchView";
 import thunk from "redux-thunk";
-import { fetchDataReducer } from "./store/fetch/reducers";
 
 const store = createStore(combineReducers({
   favoriteProducts: favoriteProductsReducer,
   errors: errorsReducer,
-  searchedProducts: HistoryProductsReducer,
-  fetch: fetchDataReducer
+  searchedProducts: HistoryProductsReducer
 }),applyMiddleware(thunk));
 
 const App = ():JSX.Element => {
